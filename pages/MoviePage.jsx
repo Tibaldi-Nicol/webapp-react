@@ -1,105 +1,154 @@
-import React, { useState, useEffect } from "react";
-import MovieCard from "../webapp-react/src/components/MovieCard";
+// Importa React per la creazione del componente
+import React, { useEffect, useState } from "react";
 
-// Array statico di film
-const initialMovies = [
-  { id: 1, title: "Inception", director: "Christopher Nolan", genre: "Sci-Fi", release_year: 2010, image: "https://picsum.photos/300/200?random=1" },
-  { id: 2, title: "Interstellar", director: "Christopher Nolan", genre: "Sci-Fi", release_year: 2014, image: "https://picsum.photos/300/200?random=2" },
-  { id: 3, title: "The Dark Knight", director: "Christopher Nolan", genre: "Action", release_year: 2008, image: "https://picsum.photos/300/200?random=3" },
-  { id: 4, title: "The Matrix", director: "Lana & Lilly Wachowski", genre: "Sci-Fi", release_year: 1999, image: "https://picsum.photos/300/200?random=4" },
-  { id: 5, title: "Pulp Fiction", director: "Quentin Tarantino", genre: "Crime", release_year: 1994, image: "https://picsum.photos/300/200?random=5" }
-];
+// Importa useParams per leggere i parametri della URL, e Link per la navigazione interna con React Router
+import { useParams, Link } from "react-router-dom";
 
-// Array delle recensioni della community
-const communityReviews = [
-  { id: 1, movieTitle: "Inception", reviewer: "Marco R.", rating: 5, comment: "Un capolavoro assoluto! Nolan ha superato se stesso con questo film sulla realtà e i sogni." },
-  { id: 2, movieTitle: "The Matrix", reviewer: "Giulia M.", rating: 5, comment: "Rivoluzionario! Ha cambiato per sempre il modo di vedere il cinema e la tecnologia." },
-  { id: 3, movieTitle: "Interstellar", reviewer: "Luca P.", rating: 4, comment: "Visivamente stupendo e emotivamente coinvolgente. La colonna sonora di Zimmer è perfetta." },
-  { id: 4, movieTitle: "Pulp Fiction", reviewer: "Sara T.", rating: 5, comment: "Tarantino al suo meglio. Dialoghi brillanti e una narrazione non lineare geniale." },
-  { id: 5, movieTitle: "The Dark Knight", reviewer: "Alessandro C.", rating: 5, comment: "Heath Ledger è stato fenomenale nel ruolo del Joker. Un film indimenticabile." }
-];
+// Importa axios per effettuare richieste HTTP al backend
+import axios from "axios";
 
-const Homepage = () => {
-  const [movies, setMovies] = useState(initialMovies);
+// Componente principale che mostra i dettagli di un singolo film
+const MoviePage = () => {
+  // Legge l'ID del film dalla URL (es: /movies/1 → id sarà "1")
+  const { id } = useParams();
+
+  // Stato per memorizzare i dati del film ricevuti dall'API
   const [movie, setMovie] = useState(null);
-  
-  // Funzione che mi recupera l'array che ha l'id passato come parametro
-  const fetchMovie = (id) => {
-    let foundMovie = null;
-    movies.forEach((actualMovie) => {
-      if (actualMovie.id === parseInt(id)) {
-        foundMovie = actualMovie;
-      }
-    });
-    return foundMovie;
-  };
 
+  // Stato per gestire il caricamento dei dati (mentre aspettiamo la risposta del server)
+  const [loading, setLoading] = useState(true);
+
+  // Stato per gestire eventuali errori (es. film non trovato)
+  const [error, setError] = useState(null);
+
+  // Effettua una chiamata API quando il componente viene montato (o quando l'ID del film cambia)
   useEffect(() => {
-    // Esempio: recupera il film con id 1 al caricamento della pagina
-    const foundMovie = fetchMovie(1);
-    setMovie(foundMovie);
-  }, []);
+    // Funzione asincrona per recuperare i dettagli del film
+    const fetchMovie = async () => {
+      try {
+        // Effettua una richiesta GET al backend usando axios
+        const resp = await axios.get(`http://localhost:3000/api/films/${id}`);
 
-  console.log(movie);
+        // Log dei dati ricevuti per verificare che l'immagine sia presente
+        console.log("Dettaglio film ricevuto:", resp.data);
 
-  return (
-    <div className="container mt-4">
-      <h1 className="text-light text-center bg-dark py-3 rounded">🎬 MOVIE MOVES 🎬</h1>
-      <h2 className="text-secondary text-center mb-4"><i>The Movies List</i></h2>
-      
-      {/* Visualizza il film trovato con useEffect */}
-      {movie && (
-        <div className="alert alert-info mb-4">
-          <h5>🎯 Film caricato con useEffect:</h5>
-          <strong>{movie.title}</strong> - {movie.director} ({movie.release_year})
+        // Imposta i dati del film nello stato
+        setMovie(resp.data);
+      } catch (err) {
+        // Se la richiesta fallisce (es: film non esistente), gestisce l'errore
+        console.error("Errore nel caricamento del film:", err);
+        setError("Film non trovato");
+      } finally {
+        // Dopo la richiesta, disattiva lo stato di caricamento
+        setLoading(false);
+      }
+    };
+
+    // Chiama la funzione per recuperare i dati del film
+    fetchMovie();
+  }, [id]); // Usa "id" come dipendenza: se cambia, ricarica i dati
+
+  // Se il film è ancora in fase di caricamento, mostra un'animazione di caricamento
+  if (loading) {
+    return (
+      <div className="container mt-5 text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Caricamento...</span>
         </div>
-      )}
-            
-      <div className="row g-4">
-        {movies.map((movie) => (
-          <div key={movie.id} className="col-12 col-sm-6 col-lg-4">
-            <MovieCard movie={movie} />
-          </div>
-        ))}
       </div>
+    );
+  }
 
-      {/* Sezione Recensioni della Community */}
-      <div className="mt-5">
-        <h3 className="text-center text-primary mb-4">💬 Our Community Reviews</h3>
-        <div className="row g-3">
-          {communityReviews.map((review) => (
-            <div key={review.id} className="col-12 col-lg-6">
-              <div className="card border-primary h-100">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start mb-2">
-                    <h6 className="card-title text-primary fw-bold mb-0">{review.movieTitle}</h6>
-                    <div className="text-warning">
-                      {'⭐'.repeat(review.rating)}
+  // Se il film non è stato trovato o c'è stato un errore, mostra un messaggio di avviso
+  if (error || !movie) {
+    return (
+      <div className="container mt-5 text-center">
+        <h2 className="text-danger">❌ Film non trovato</h2>
+        <p>Il film che stai cercando non esiste.</p>
+
+        {/* Pulsante per tornare alla Homepage */}
+        <Link to="/" className="btn btn-primary">
+          🔙 Torna alla Homepage
+        </Link>
+      </div>
+    );
+  }
+
+  // Se i dati sono stati caricati correttamente, mostra le informazioni del film
+  return (
+    <div className="container mt-5">
+      <div className="row">
+        
+        {/* Colonna di sinistra con l'immagine del film */}
+        <div className="col-md-4 text-center">
+          <img 
+            src={movie.image} // Percorso dell'immagine ricevuto dall'API
+            alt={movie.title} // Testo alternativo per migliorare l'accessibilità
+            className="img-fluid rounded shadow" // Stile dell'immagine
+          />
+        </div>
+
+        {/* Colonna di destra con i dettagli del film */}
+        <div className="col-md-8">
+          <h1 className="display-4 mb-3">{movie.title}</h1>
+
+          <div className="mb-4">
+            <h5 className="text-muted">🎬 Dettagli del Film</h5>
+            <p><strong>Regista:</strong> {movie.director}</p>
+            <p><strong>Genere:</strong> {movie.genre}</p>
+            <p><strong>Anno di uscita:</strong> {movie.release_year}</p>
+          </div>
+
+          {/* Se il film ha una descrizione, viene mostrata */}
+          {movie.abstract && (
+            <div className="mb-4">
+              <h5 className="text-muted">📝 Descrizione</h5>
+              <p>{movie.abstract}</p>
+            </div>
+          )}
+
+          {/* Sezione Recensioni - Mostra le recensioni degli utenti se presenti */}
+          <div className="mt-5">
+            <h3 className="text-primary">💬 Recensioni della Community</h3>
+
+            {/* Verifica se il film ha recensioni - Se sì, le mostra in una lista */}
+            {movie.reviews?.length > 0 ? (
+              <div className="row g-3">
+                {movie.reviews.map((review) => (
+                  <div key={review.id} className="col-12">
+                    <div className="card border-primary">
+                      <div className="card-body">
+                        <h6 className="text-primary fw-bold">
+                          {review.name} - ⭐{review.vote}
+                        </h6>
+                        <p className="text-muted"><em>"{review.text}"</em></p>
+                        <small className="text-secondary">
+                          🕒 {new Date(review.created_at).toLocaleDateString()}
+                        </small>
+                      </div>
                     </div>
                   </div>
-                  <p className="card-text text-muted mb-2">
-                    <em>"{review.comment}"</em>
-                  </p>
-                  <small className="text-secondary">
-                    - {review.reviewer}
-                  </small>
-                </div>
+                ))}
               </div>
-            </div>
-          ))}
+            ) : (
+              <p className="text-muted">Nessuna recensione disponibile.</p>
+            )}
+          </div>
+
+          {/* Pulsanti di navigazione */}
+          <div className="d-flex gap-2 mt-4">
+            <Link to="/" className="btn btn-secondary">
+              🔙 Torna alla Lista
+            </Link>
+            <button className="btn btn-primary">
+              ⭐ Aggiungi ai Preferiti
+            </button>
+          </div>
         </div>
-      </div>
-      
-      {/* Sezione per testare la funzione fetchMovie */}
-      <div className="mt-5 p-4 bg-light rounded">
-        <h4>🔍 Test Funzione Filtro</h4>
-        <p>Esempio: <code>fetchMovie(1)</code> restituisce:</p>
-        <pre className="bg-dark text-light p-3 rounded">
-          {JSON.stringify(fetchMovie(1), null, 2)}
-        </pre>
       </div>
     </div>
   );
 };
 
-export default Homepage;
+// Esporta il componente per poterlo usare nel sistema di routing
+export default MoviePage;

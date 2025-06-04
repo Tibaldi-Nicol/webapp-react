@@ -1,4 +1,7 @@
+// Importa React per la creazione del componente
 import React from "react";
+
+// Importa Link da React Router per permettere la navigazione interna
 import { Link } from "react-router-dom";
 
 /**
@@ -8,23 +11,46 @@ import { Link } from "react-router-dom";
  */
 const MovieCard = ({ movie }) => {
   return (
-    <div className="card bg-secondary text-light h-100">
+    // ✅ Contenitore principale della card con un'ombra per un effetto visivo più elegante
+    <div className="card h-100 shadow-sm">
+
+      {/* ✅ Se il film ha un'immagine nel database, usa quella. 
+          Se l'immagine non è presente, carica un'immagine casuale di Picsum per evitare uno spazio vuoto */}
       <img 
-        src={movie.image} 
-        alt={movie.title} 
-        className="card-img-top rounded-top" 
-        style={{ height: '200px', objectFit: 'cover' }}
+        src={movie.image || `https://picsum.photos/300/200?random=${movie.id}`} 
+        className="card-img-top" // Classi di Bootstrap per formattare l'immagine
+        alt={movie.title} // Testo alternativo per accessibilità
+        style={{ height: '200px', objectFit: 'cover' }} // Mantiene l'immagine proporzionata senza deformarla
       />
-      <div className="card-body d-flex flex-column text-center">
-        <h5 className="fw-bold mb-2">{movie.title}</h5>
-        <h6 className="mb-2"><em>{movie.director}</em></h6>
-        <p className="mb-3 flex-grow-1">{movie.genre} | {movie.release_year}</p>
-        <Link className="btn btn-dark btn-sm mt-auto" to={`/movies/${movie.id}`}>
-          🎥 Scopri di più
-        </Link>
+      
+      {/* ✅ Contenitore interno per il testo e le informazioni del film */}
+      <div className="card-body d-flex flex-column">
+
+        {/* ✅ Titolo del film, mostrato in grande */}
+        <h5 className="card-title">{movie.title}</h5>
+
+        {/* ✅ Nome del regista, mostrato in testo più piccolo */}
+        <p className="card-text text-muted">{movie.director}</p>
+
+        {/* ✅ Genere e anno di uscita del film, formattati in modo compatto */}
+        <p className="card-text">
+          <small className="text-muted">{movie.genre} | {movie.release_year}</small>
+        </p>
+        
+        {/* ✅ Pulsante per accedere ai dettagli del film */}
+        <div className="mt-auto">
+          <Link 
+            to={`/movies/${movie.id}`} // Genera un link dinamico basato sull'ID del film
+            className="btn btn-primary w-100" // Stile del bottone
+          >
+            🎥 Scopri di più
+          </Link>
+        </div>
+
       </div>
     </div>
   );
 };
 
+// ✅ Esporta il componente per poterlo usare in Homepage e altre parti del progetto
 export default MovieCard;
