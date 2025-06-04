@@ -1,4 +1,54 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
+// Array di oggetti che rappresentano i film iniziali
+const initialMovies = [
+  {
+    id: 1,
+    title: "Inception",
+    director: "Christopher Nolan",
+    genre: "Sci-Fi",
+    release_year: 2010,
+    image: "https://picsum.photos/200/300?random=1"
+  },
+  {
+    id: 2,
+    title: "Interstellar",
+    director: "Christopher Nolan",
+    genre: "Sci-Fi",
+    release_year: 2014,
+    image: "https://picsum.photos/200/300?random=2"
+  },
+  {
+    id: 3,
+    title: "The Dark Knight",
+    director: "Christopher Nolan",
+    genre: "Action",
+    release_year: 2008,
+    image: "https://picsum.photos/200/300?random=3"
+  },
+  {
+    id: 4,
+    title: "The Matrix",
+    director: "Lana & Lilly Wachowski",
+    genre: "Sci-Fi",
+    release_year: 1999,
+    image: "https://picsum.photos/200/300?random=4"
+  },
+  {
+    id: 5,
+    title: "Pulp Fiction",
+    director: "Quentin Tarantino",
+    genre: "Crime",
+    release_year: 1994,
+    image: "https://picsum.photos/200/300?random=5"
+  }
+];
+
+
+
+
+
 
 const Homepage = () => {
   return (
@@ -24,9 +74,10 @@ const Homepage = () => {
                 <h3 className="text-primary">Titolo del Film</h3>
                 <h4><em>Autore</em></h4>
                 <p>Descrizione breve del film.</p>
-                <a href="#" className="btn btn-primary">
+                {/* Corretto il link */}
+                <Link className="btn btn-primary" to="/movies/1">
                   Scopri di più
-                </a>
+                </Link>
               </div>
             </div>
           </div>
