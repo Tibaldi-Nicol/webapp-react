@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 // Array di oggetti che rappresentano i film iniziali
@@ -45,12 +45,10 @@ const initialMovies = [
   }
 ];
 
-
-
-
-
-
 const Homepage = () => {
+  // Stato per gestire l'elenco dei film
+  const [movies, setMovies] = useState(initialMovies);
+
   return (
     <>
       {/* Titolo principale */}
@@ -62,25 +60,22 @@ const Homepage = () => {
       {/* Sezione per i film */}
       <div className="container mt-4">
         <div className="row justify-content-center">
-          {/* Card del film */}
-          <div className="col-12 col-md-6 col-lg-4">
-            <div className="card">
-              <img
-                src="https://picsum.photos/200/300"
-                alt="Movie"
-                className="card-img-top"
-              />
-              <div className="card-body text-center">
-                <h3 className="text-primary">Titolo del Film</h3>
-                <h4><em>Autore</em></h4>
-                <p>Descrizione breve del film.</p>
-                {/* Corretto il link */}
-                <Link className="btn btn-primary" to="/movies/1">
-                  Scopri di più
-                </Link>
+          {/* Mappa i film e li visualizza come card */}
+          {movies.map((movie) => (
+            <div key={movie.id} className="col-12 col-md-6 col-lg-4 mb-4">
+              <div className="card">
+                <img src={movie.image} alt={movie.title} className="card-img-top" />
+                <div className="card-body text-center">
+                  <h3 className="text-primary">{movie.title}</h3>
+                  <h4><em>{movie.director}</em></h4>
+                  <p>{movie.genre} | {movie.release_year}</p>
+                  <Link className="btn btn-primary" to={`/movies/${movie.id}`}>
+                    Scopri di più
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </>
